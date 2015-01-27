@@ -7,10 +7,19 @@ import android.view.View;
 import android.widget.TextView;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.content.Context;
+import java.io.*;
+import java.lang.Object;
+import java.util.*;
 
 
 public class MainActivity extends Activity {
 
+    public class Dummy implements Runnable{
+        public void run(){
+
+        }
+    }
     public class MyTime{
         long time;
         String unit;
@@ -86,6 +95,121 @@ public class MainActivity extends Activity {
             avgOverhead = avgOverhead/count;
             MyTime elapsedTime = getTimeString(avgOverhead);
             label2.setText(elapsedTime.time+" "+elapsedTime.unit);
+        }
+    }
+
+    public void getSysCallOverhead(View v){
+        if(v.getId() == R.id.b4){
+            //Button button4 = (Button)findViewById(R.id.b4);
+            TextView label41 = (TextView)findViewById(R.id.textView41);
+            TextView label42 = (TextView)findViewById(R.id.textView42);
+
+            //
+            int i;
+            int count = 50;
+            long startTime;
+            long stopTime;
+            long avgOverhead=0;
+
+
+//Write SysCall
+            try {
+                //InputStream fos = openFileInput("syscall");
+                File file;
+                startTime = System.nanoTime();
+                for(i=0;i<=count;i++) {
+                file = File.createTempFile("MyFile", null, this.getCacheDir());
+                    file.delete();
+                }
+                stopTime = System.nanoTime();
+                avgOverhead = (stopTime-startTime)/(2*count);
+                //fos.close();
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            MyTime elapsedTime = getTimeString(avgOverhead);
+            label41.setText(elapsedTime.time+" "+elapsedTime.unit);
+
+//Time SysCall
+
+            startTime = System.nanoTime();
+
+            for(i=0;i<=count;i++) {
+                System.currentTimeMillis();
+            }
+            stopTime = System.nanoTime();
+            avgOverhead = (stopTime-startTime)/count;
+            MyTime elapsedTime2 = getTimeString(avgOverhead);
+            label42.setText(elapsedTime2.time+" "+elapsedTime2.unit);
+        }
+
+    }
+
+    public void getProcessCreationTime(View v){
+        if(v.getId() == R.id.b5){
+            TextView label = (TextView)findViewById(R.id.textView5);
+
+            int count = 50;
+            long avgOverhead=0;
+
+            List<String> command = new ArrayList<String>();
+            command.add("cmd.exe");
+            ProcessBuilder builder = new ProcessBuilder(command);
+            Map<String, String> environ = builder.environment();
+
+            long startTime;
+            long stopTime;
+
+            startTime = System.nanoTime();
+            for(int i=0;i<=count;i++) {
+                try {
+
+                    final Process process = builder.start();
+                    //InputStream is = process.getInputStream();
+                    process.destroy();
+
+                } catch (IOException fnf) {
+                    fnf.getMessage();
+                }
+            }
+            stopTime =  System.nanoTime();
+            avgOverhead = stopTime - startTime;
+            avgOverhead = avgOverhead/count;
+            MyTime elapsedTime = getTimeString(avgOverhead);
+            label.setText(elapsedTime.time+" "+elapsedTime.unit);
+
+        }
+    }
+
+    public void getThreadCreateTime(View v){
+        if(v.getId() == R.id.b6) {
+            TextView label = (TextView) findViewById(R.id.textView6);
+
+            int count = 500;
+            long avgOverhead = 0;
+            long startTime;
+            long stopTime;
+            Dummy dummy = new Dummy();
+            startTime = System.nanoTime();
+            for (int i = 0; i <= count; i++) {
+                try {
+                    Thread t = new Thread(dummy);
+                    t.start();
+                    //t.join();
+                } catch (Exception e) {
+                    e.getMessage();
+                }
+            }
+
+            stopTime = System.nanoTime();
+            avgOverhead = stopTime - startTime;
+            avgOverhead = avgOverhead / count;
+            MyTime elapsedTime = getTimeString(avgOverhead);
+            label.setText(elapsedTime.time + " " + elapsedTime.unit);
+
         }
     }
 
