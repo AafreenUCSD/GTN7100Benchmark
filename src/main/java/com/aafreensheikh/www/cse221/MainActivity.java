@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.ListView;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.content.Context;
@@ -20,6 +22,17 @@ public class MainActivity extends Activity {
 
         }
     }
+
+    public class Dummy1 implements Runnable{
+        public void run(){
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public class MyTime{
         long time;
         String unit;
@@ -67,6 +80,10 @@ public class MainActivity extends Activity {
         else if(time<=999999){
             convertedTime = time/1000;
             return new MyTime(convertedTime,"us");
+        }
+        else if(time<=999999999){
+            convertedTime = time/1000000;
+            return new MyTime(convertedTime,"ms");
         }
         else return new MyTime(convertedTime,"ns");
     }
@@ -184,6 +201,102 @@ public class MainActivity extends Activity {
         }
     }
 
+    public void getThreadContextSwitchTime(View v){
+        if(v.getId()== R.id.b7){
+            TextView label = (TextView) findViewById(R.id.textView7);
+            Dummy1 dummy = new Dummy1();
+            Thread t1 = new Thread(dummy);
+            Thread t2 = new Thread(dummy);
+            t1.start();
+            t2.start();
+            int count = 10;
+            int i=0;
+            long avgOverhead=0;
+            long startTime = System.nanoTime();
+            while(i<count){
+                try {
+                t1.sleep(1);
+                t2.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                i++;
+            }
+            long stopTime = System.nanoTime();
+            avgOverhead = stopTime - startTime;
+            avgOverhead = avgOverhead/(2*count);
+            MyTime elapsedTime = getTimeString(avgOverhead);
+            label.setText(elapsedTime.time+" "+elapsedTime.unit);
+        }
+    }
+
+    public void getProcedureCallOverhead(View v){
+        if(v.getId() == R.id.b8) {
+            ListView myListView = (ListView) findViewById(R.id.listView1);
+            //int count = 1000;
+            long avgOverhead=0;
+            long t[] = new long[9];
+            int a=1, b=2, c=3, d=4, e=5, f=6, g=7;
+            t[0] = System.nanoTime();
+            call0();
+            t[1] = System.nanoTime();
+            call1(a);
+            t[2] = System.nanoTime();
+            call2(a,b);
+            t[3] = System.nanoTime();
+            call3(a,b,c);
+            t[4] = System.nanoTime();
+            call4(a,b,c,d);
+            t[5] = System.nanoTime();
+            call5(a,b,c,d,e);
+            t[6] = System.nanoTime();
+            call6(a,b,c,d,e,f);
+            t[7] = System.nanoTime();
+            call7(a,b,c,d,e,f,g);
+            t[8] = System.nanoTime();
+
+            ArrayList<Long> myList = new ArrayList<Long>();
+            for(int i=1;i<9;i++) {
+                myList.add(t[i]-t[i-1]);
+            }
+            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, myList);
+            myListView.setAdapter(adapter);
+        }
+    }
+
+    public void getProcessContextSwitchTime(View v){
+        if(v.getId() == R.id.b5){
+            TextView label = (TextView)findViewById(R.id.textView5);
+
+            int count = 50;
+            long avgOverhead=0;
+
+            List<String> command = new ArrayList<String>();
+            command.add("cmd.exe");
+            ProcessBuilder builder = new ProcessBuilder(command);
+            Map<String, String> environ = builder.environment();
+
+            long startTime;
+            long stopTime;
+            Process p1,p2;
+            try {
+                p1 = builder.start();
+                p2 = builder.start();
+            } catch (IOException fnf) {
+                fnf.getMessage();
+            }
+            startTime = System.nanoTime();
+            for(int i=0;i<=count;i++) {
+
+            }
+            stopTime =  System.nanoTime();
+            avgOverhead = stopTime - startTime;
+            avgOverhead = avgOverhead/count;
+            MyTime elapsedTime = getTimeString(avgOverhead);
+            label.setText(elapsedTime.time+" "+elapsedTime.unit);
+
+        }
+    }
     public void getThreadCreateTime(View v){
         if(v.getId() == R.id.b6) {
             TextView label = (TextView) findViewById(R.id.textView6);
@@ -211,6 +324,31 @@ public class MainActivity extends Activity {
             label.setText(elapsedTime.time + " " + elapsedTime.unit);
 
         }
+    }
+
+    public void call0(){
+
+    }
+    public void call1(int a){
+
+    }
+    public void call2(int a, int b){
+
+    }
+    public void call3(int a, int b, int c){
+
+    }
+    public void call4(int a, int b, int c, int d){
+
+    }
+    public void call5(int a, int b, int c, int d, int e){
+
+    }
+    public void call6(int a, int b, int c, int d, int e, int f){
+
+    }
+    public void call7(int a, int b, int c, int d, int e, int f, int g){
+
     }
 
     @Override
