@@ -1,5 +1,4 @@
 package com.aafreensheikh.www.cse221;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -120,7 +119,6 @@ public class MainActivity extends Activity {
             //Button button4 = (Button)findViewById(R.id.b4);
             TextView label41 = (TextView)findViewById(R.id.textView41);
             TextView label42 = (TextView)findViewById(R.id.textView42);
-
             //
             int i;
             int count = 50;
@@ -128,20 +126,18 @@ public class MainActivity extends Activity {
             long stopTime;
             long avgOverhead=0;
 
-
 //Write SysCall
             try {
                 //InputStream fos = openFileInput("syscall");
                 File file;
                 startTime = System.nanoTime();
                 for(i=0;i<=count;i++) {
-                file = File.createTempFile("MyFile", null, this.getCacheDir());
+                    file = File.createTempFile("MyFile", null, this.getCacheDir());
                     file.delete();
                 }
                 stopTime = System.nanoTime();
                 avgOverhead = (stopTime-startTime)/(2*count);
                 //fos.close();
-
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -151,7 +147,6 @@ public class MainActivity extends Activity {
             label41.setText(elapsedTime.time+" "+elapsedTime.unit);
 
 //Time SysCall
-
             startTime = System.nanoTime();
 
             for(i=0;i<=count;i++) {
@@ -162,7 +157,6 @@ public class MainActivity extends Activity {
             MyTime elapsedTime2 = getTimeString(avgOverhead);
             label42.setText(elapsedTime2.time+" "+elapsedTime2.unit);
         }
-
     }
 
     public void getProcessCreationTime(View v){
@@ -215,8 +209,8 @@ public class MainActivity extends Activity {
             long startTime = System.nanoTime();
             while(i<count){
                 try {
-                t1.sleep(1);
-                t2.sleep(1);
+                    t1.sleep(1);
+                    t2.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -311,7 +305,6 @@ public class MainActivity extends Activity {
                 try {
                     Thread t = new Thread(dummy);
                     t.start();
-                    //t.join();
                 } catch (Exception e) {
                     e.getMessage();
                 }
