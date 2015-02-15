@@ -12,7 +12,7 @@ import android.content.Context;
 import java.io.*;
 import java.lang.Object;
 import java.util.*;
-
+import android.content.Intent;
 
 public class MainActivity extends Activity {
 
@@ -342,6 +342,11 @@ public class MainActivity extends Activity {
     }
     public void call7(int a, int b, int c, int d, int e, int f, int g){
 
+    }
+
+    public void goToNextPage(View v){
+        Intent intent = new Intent(this,MainActivity2.class);
+        startActivity(intent);
     }
 
     @Override
