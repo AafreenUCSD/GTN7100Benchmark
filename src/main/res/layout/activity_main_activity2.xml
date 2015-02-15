@@ -65,4 +65,21 @@
         android:layout_alignBottom="@+id/b2"
         android:layout_alignStart="@+id/textView2" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RAM Access time"
+        android:id="@+id/b3"
+        android:layout_below="@+id/b2"
+        android:layout_alignParentStart="true"
+        android:onClick="getRAMAccessTime"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/RAMAccessTimes"
+        android:layout_below="@+id/b3"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

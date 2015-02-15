@@ -18,7 +18,13 @@ import java.nio.channels.FileChannel;
 import android.util.Log;
 
 public class MainActivity2 extends Activity {
-
+    public static long[] times = new long[4];
+    public static int counter=0;
+    /*
+    public static long[] timeb512 = new long[4];
+    public static long[] timekb32 = new long[4];
+    public long[] timemb8 = new long[4];
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +37,14 @@ public class MainActivity2 extends Activity {
         public MyTime(long time, String unit){
             this.time = time;
             this.unit = unit;
+        }
+    }
+
+    public class Node{
+        int data;
+        Node next;
+        public Node(int data){
+            this.data = data;
         }
     }
 
@@ -48,6 +62,60 @@ public class MainActivity2 extends Activity {
             return new MyTime(convertedTime,"ms");
         }
         else return new MyTime(convertedTime,"ns");
+    }
+
+    public void getRAMAccessTime(View v){
+        //create arrays of different sizes
+        int[] b512 = new int[128];
+        //int[] kb32 = new int[16384];
+        //int[] mb8 = new int[4194304];
+        //pass some of them to the RAM access calculator
+        for(int stride=1; stride<9; stride *=2){
+            RAMAccessCalculator(b512, stride);
+            //RAMAccessCalculator(kb32, stride);
+            //RAMAccessCalculator(mb8, stride);
+        }
+        printArray(times,v);
+    }
+
+    public void printArray(long[] arr, View v){
+        TextView label = (TextView) findViewById(R.id.RAMAccessTimes);
+        for(int i=0; i<arr.length; i++){
+            String s = String.valueOf(arr[i]);
+            label.append(s+" ");
+        }
+    }
+
+    public void RAMAccessCalculator(int[] arr, int stride){
+        //Create the linked list
+        int count = 0;
+            Node head = new Node(arr[0]);
+            Node prev = head;
+            Node p;
+            for(int i=0;i<arr.length-stride;i=i+stride){
+                p = new Node(arr[i]);
+                prev.next = p;
+                prev = p;
+                count++;
+            }
+
+        //Traverse/read the linked list
+        long startTime;
+        long stopTime;
+        long difftime;
+        long AccessTime=0;
+
+            p = head;
+        startTime = System.nanoTime();
+            while (p.next!=null) {
+                p = p.next;
+            }
+        stopTime = System.nanoTime();
+        difftime=stopTime-startTime;
+        //difftime is reading of X numers;
+        AccessTime=difftime/count;
+        times[counter]=AccessTime;
+        counter++;
     }
 
     public void getRAMBandwidth(View v) {
