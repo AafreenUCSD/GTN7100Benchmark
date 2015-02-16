@@ -18,13 +18,24 @@ import java.nio.channels.FileChannel;
 import android.util.Log;
 
 public class MainActivity2 extends Activity {
-    public static long[] times = new long[4];
-    public static int counter=0;
-    /*
-    public static long[] timeb512 = new long[4];
-    public static long[] timekb32 = new long[4];
-    public long[] timemb8 = new long[4];
-    */
+    //public static long[] times = new long[4];
+    //public static int counter=0;
+
+    //Create the 15 differently sized arrays
+    //public static int[][] arrays = new int[15][];
+    //Create 15 differently sized virtual arrays in one gigantic array of size 8MB
+    public static int[] arrays = new int[8388608];
+
+    //To store the RAM access time for each of the 15 array sizes from 512 bytes to 8 MB
+    public static long[][] times = new long[16][9];
+
+    //Enum to index the names of the arrays
+    public static enum ArraySize{
+        b512, kb1, kb2, kb4, kb8, kb16, kb32, kb64, kb128, kb256, kb512, mb1, mb2, mb4, mb8
+    }
+
+    public static int base = 128;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,17 +76,35 @@ public class MainActivity2 extends Activity {
     }
 
     public void getRAMAccessTime(View v){
-        //create arrays of different sizes
-        int[] b512 = new int[128];
-        //int[] kb32 = new int[16384];
-        //int[] mb8 = new int[4194304];
-        //pass some of them to the RAM access calculator
-        for(int stride=1; stride<9; stride *=2){
-            RAMAccessCalculator(b512, stride);
-            //RAMAccessCalculator(kb32, stride);
-            //RAMAccessCalculator(mb8, stride);
+        //create arrays of different sizes (initialized with zeroes by default)
+        /*
+        int base = 128;
+        for(int i=0; i<15; i++, base *=2){
+            arrays[i] = new int[base];
         }
-        printArray(times,v);
+        */
+
+        //pass some of them to the RAM access calculator
+        for(int stride=1; stride<9; stride++){
+            for(int i=1; i<16; i++) {
+                //RAMAccessCalculator(arrays[i], i, stride);
+                RAMAccessCalculator(arrays, i, stride);
+            }
+        }
+        //printArray(times,v);
+        printArrays(times,v);
+    }
+
+    public void printArrays(long[][] arr, View v){
+        TextView label = (TextView) findViewById(R.id.RAMAccessTimes);
+        for(int i=1; i<arr.length; i++){
+//            label.append(String.valueOf(ArraySize.values()[i]));
+            for(int j=1; j<arr[1].length;j++) {
+                String s = String.valueOf(arr[i][j]);
+                label.append(s + " ");
+            }
+            label.append("\n");
+        }
     }
 
     public void printArray(long[] arr, View v){
@@ -86,13 +115,15 @@ public class MainActivity2 extends Activity {
         }
     }
 
-    public void RAMAccessCalculator(int[] arr, int stride){
+    public void RAMAccessCalculator(int[] arr, int index, int stride){
         //Create the linked list
         int count = 0;
             Node head = new Node(arr[0]);
             Node prev = head;
             Node p;
-            for(int i=0;i<arr.length-stride;i=i+stride){
+        int readUpto = base*index;
+
+            for(int i=0;i<readUpto-stride;i=i+stride){
                 p = new Node(arr[i]);
                 prev.next = p;
                 prev = p;
@@ -111,11 +142,12 @@ public class MainActivity2 extends Activity {
                 p = p.next;
             }
         stopTime = System.nanoTime();
+
         difftime=stopTime-startTime;
-        //difftime is reading of X numers;
+        //difftime is taken for reading X numbers
         AccessTime=difftime/count;
-        times[counter]=AccessTime;
-        counter++;
+        times[index][stride]=AccessTime;
+        System.gc();
     }
 
     public void getRAMBandwidth(View v) {
@@ -144,7 +176,7 @@ public class MainActivity2 extends Activity {
 
             int dummy[] = new int[ArraySize + 1];
             int cnst = 0;
-            int stride = 8;
+            int stride = 1;
 
 
 //init
@@ -189,8 +221,12 @@ public class MainActivity2 extends Activity {
 //access one: stride 8-Copy
 
             startTime = System.nanoTime();
-            for (int i = 0; i < ArraySize - stride; i += stride) {
-                System.arraycopy(array3, i, dummy, i, 1);
+            for (int i = 0; i < ArraySize-4; i += 4) {
+                //System.arraycopy(array3, i, dummy, i, 1);
+                dummy[i] = array3[i];
+                dummy[i+1] = array3[i+1];
+                dummy[i+2] = array3[i+2];
+                dummy[i+3] = array3[i+3];
             }
 
             stopTime = System.nanoTime();
