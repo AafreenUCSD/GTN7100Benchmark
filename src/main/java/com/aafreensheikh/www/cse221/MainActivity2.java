@@ -214,17 +214,17 @@ public class MainActivity2 extends Activity {
             long startTime;
             long stopTime;
             long diffTime = 0;
-            int count = 2 ^ 21;
-            RandomAccessFile memoryMappedFile = new RandomAccessFile("largeFile.txt", "rw");
+            int count = 2*1024*1024;
+            RandomAccessFile memoryMappedFile = new RandomAccessFile(this.getFilesDir().getPath().toString() + "largeFile.txt", "rw");
             MappedByteBuffer out = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, count);
             startTime = System.nanoTime();
 
-            for (int i = 0; i < count; i *= 2048) {
+            for (int i = 0; i < count; i += (1024*4)) {
                 out.put(i, (byte) 'A');
-            }
+           }
             stopTime = System.nanoTime();
             diffTime = stopTime - startTime;//for 2^11 accesses.
-            diffTime = diffTime / (2 ^ 11);
+            diffTime = diffTime/(512);
             MyTime elapsedTime3 = getTimeString(diffTime);
             label1.setText(elapsedTime3.time + " " + elapsedTime3.unit);
         }

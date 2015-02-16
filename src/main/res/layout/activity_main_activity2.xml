@@ -61,9 +61,9 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:id="@+id/textView4"
-        android:layout_alignBaseline="@+id/b2"
         android:layout_alignBottom="@+id/b2"
-        android:layout_alignStart="@+id/textView2" />
+        android:layout_below="@+id/textView2"
+        android:layout_alignLeft="@+id/textView2" />
 
     <Button
         android:layout_width="wrap_content"
