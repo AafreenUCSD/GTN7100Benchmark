@@ -143,10 +143,20 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Next"
+        android:text="Page2"
         android:id="@+id/b9"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:onClick="goToNextPage"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Page3"
+        android:id="@+id/b10"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/b9"
+        android:onClick="goToNextNextPage"/>
 
 </RelativeLayout>

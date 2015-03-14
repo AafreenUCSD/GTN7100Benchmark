@@ -18,22 +18,18 @@ import java.nio.channels.FileChannel;
 import android.util.Log;
 
 public class MainActivity2 extends Activity {
-    //public static long[] times = new long[4];
-    //public static int counter=0;
 
-    //Create the 15 differently sized arrays
-    //public static int[][] arrays = new int[15][];
-    //Create 15 differently sized virtual arrays in one gigantic array of size 8MB
-    public static int[] arrays = new int[8388608];
+    //Cache line size is probably 64 bytes = 16 ints, so we will create strideLengths as 8,16,32,64 (in different programs)
 
-    //To store the RAM access time for each of the 15 array sizes from 512 bytes to 8 MB
-    public static long[][] times = new long[16][9];
+    //Fix the stride in this program here:
+    int strideLength = 8;
 
     //Enum to index the names of the arrays
     public static enum ArraySize{
         b512, kb1, kb2, kb4, kb8, kb16, kb32, kb64, kb128, kb256, kb512, mb1, mb2, mb4, mb8
     }
 
+    //Base used for declaring the size of arrays
     public static int base = 128;
 
     @Override
@@ -48,14 +44,6 @@ public class MainActivity2 extends Activity {
         public MyTime(long time, String unit){
             this.time = time;
             this.unit = unit;
-        }
-    }
-
-    public class Node{
-        int data;
-        Node next;
-        public Node(int data){
-            this.data = data;
         }
     }
 
@@ -76,59 +64,142 @@ public class MainActivity2 extends Activity {
     }
 
     public void getRAMAccessTime(View v){
+
         //create arrays of different sizes (initialized with zeroes by default)
         /*
-        int base = 128;
-        for(int i=0; i<15; i++, base *=2){
-            arrays[i] = new int[base];
-        }
+        int[] array0 = new int[base];
+        int[] array1 = new int[base*2];
+        int[] array2 = new int[base*4];
+        int[] array3 = new int[base*8];
+        int[] array4 = new int[base*16];
+        int[] array5 = new int[base*32];
+        int[] array6 = new int[base*64];
         */
 
-        //pass some of them to the RAM access calculator
-        for(int stride=1; stride<9; stride++){
-            for(int i=1; i<16; i++) {
-                //RAMAccessCalculator(arrays[i], i, stride);
-                RAMAccessCalculator(arrays, i, stride);
-            }
+        int[] array0 = new int[base*128];
+        int[] array1 = new int[base*256];
+        int[] array2 = new int[base*512];
+        int[] array3 = new int[base*1024];
+        int[] array4 = new int[base*2*1024];
+        int[] array5 = new int[base*4*1024];
+        int[] array6 = new int[base*8*1024];
+
+        long[] avgTimeTakenForEachArray = new long[7];
+        long startTime;
+        long stopTime;
+
+        
+        //array0
+        int numberOfJumps=0;
+        startTime = System.nanoTime();
+        for(int i=0; i<array0.length-strideLength; i=i+strideLength, numberOfJumps++) {
+            array0[i]++;
         }
-        //printArray(times,v);
-        printArrays(times,v);
+        stopTime = System.nanoTime();
+        avgTimeTakenForEachArray[0] = stopTime - startTime;
+
+        //array1
+        numberOfJumps=0;
+        startTime = System.nanoTime();
+        for(int i=0; i<array1.length-strideLength; i=i+strideLength, numberOfJumps++) {
+            array1[i]++;
+        }
+        stopTime = System.nanoTime();
+        avgTimeTakenForEachArray[1] = stopTime - startTime;
+
+        //array2
+        numberOfJumps=0;
+        startTime = System.nanoTime();
+        for(int i=0; i<array2.length-strideLength; i=i+strideLength, numberOfJumps++) {
+            array2[i]++;
+        }
+        stopTime = System.nanoTime();
+        avgTimeTakenForEachArray[2] = stopTime - startTime;
+
+        //array3
+        numberOfJumps=0;
+        startTime = System.nanoTime();
+        for(int i=0; i<array3.length-strideLength; i=i+strideLength, numberOfJumps++) {
+            array3[i]++;
+        }
+        stopTime = System.nanoTime();
+        avgTimeTakenForEachArray[3] = stopTime - startTime;
+
+        //array4
+        numberOfJumps=0;
+        startTime = System.nanoTime();
+        for(int i=0; i<array4.length-strideLength; i=i+strideLength, numberOfJumps++) {
+            array4[i]++;
+        }
+        stopTime = System.nanoTime();
+        avgTimeTakenForEachArray[4] = stopTime - startTime;
+
+        //array5
+        numberOfJumps=0;
+        startTime = System.nanoTime();
+        for(int i=0; i<array5.length-strideLength; i=i+strideLength, numberOfJumps++) {
+            array5[i]++;
+        }
+        stopTime = System.nanoTime();
+        avgTimeTakenForEachArray[5] = stopTime - startTime;
+
+        //array6
+        numberOfJumps=0;
+        startTime = System.nanoTime();
+        for(int i=0; i<array6.length-strideLength; i=i+strideLength, numberOfJumps++) {
+            array6[i]++;
+        }
+        stopTime = System.nanoTime();
+        avgTimeTakenForEachArray[6] = stopTime - startTime;
+
+        printArray(avgTimeTakenForEachArray, numberOfJumps, v);
     }
 
     public void printArrays(long[][] arr, View v){
         TextView label = (TextView) findViewById(R.id.RAMAccessTimes);
         for(int i=1; i<arr.length; i++){
 //            label.append(String.valueOf(ArraySize.values()[i]));
-            for(int j=1; j<arr[1].length;j++) {
+            for(int j=0; j<arr[1].length;j++) {
                 String s = String.valueOf(arr[i][j]);
-                label.append(s + " ");
+                label.append(s + ", ");
             }
             label.append("\n");
         }
     }
 
-    public void printArray(long[] arr, View v){
+    public void printArray(long[] arr, int numberOfJumps, View v){
         TextView label = (TextView) findViewById(R.id.RAMAccessTimes);
         for(int i=0; i<arr.length; i++){
             String s = String.valueOf(arr[i]);
-            label.append(s+" ");
+            label.append(s+", ");
         }
     }
 
-    public void RAMAccessCalculator(int[] arr, int index, int stride){
+    public void printTimeTakenForEachJump(int[] arr, int numberOfJumps, View v){
+        TextView label = (TextView) findViewById(R.id.RAMAccessTimes);
+        label.append("Check out the logcat console.");
+        for(int i=0; i<numberOfJumps; i++){
+            String s = String.valueOf(arr[i]);
+            Log.d("Jumps = "+numberOfJumps, ", "+s);
+        }
+       // System.gc();
+    }
+
+    /*
+    public void RAMAccessCalculator(int[] arr, int index, int stride, int strideNo){
         //Create the linked list
         int count = 0;
-            Node head = new Node(arr[0]);
-            Node prev = head;
-            Node p;
+        Node head = new Node(arr[0]);
+        Node prev = head;
+        Node p;
         int readUpto = base*index;
 
-            for(int i=0;i<readUpto-stride;i=i+stride){
-                p = new Node(arr[i]);
-                prev.next = p;
-                prev = p;
-                count++;
-            }
+        for(int i=0;i<readUpto-stride;i=i+stride){
+            p = new Node(arr[i]);
+            prev.next = p;
+            prev = p;
+            count++;
+        }
 
         //Traverse/read the linked list
         long startTime;
@@ -136,19 +207,23 @@ public class MainActivity2 extends Activity {
         long difftime;
         long AccessTime=0;
 
-            p = head;
+        p = head;
         startTime = System.nanoTime();
-            while (p.next!=null) {
-                p = p.next;
-            }
+        while (p.next!=null) {
+            p = p.next;
+        }
         stopTime = System.nanoTime();
 
         difftime=stopTime-startTime;
+
         //difftime is taken for reading X numbers
-        AccessTime=difftime/count;
-        times[index][stride]=AccessTime;
+        //AccessTime=difftime/count;
+
+        AccessTime=difftime/1000;
+        times[index][strideNo]=AccessTime;
         System.gc();
     }
+    */
 
     public void getRAMBandwidth(View v) {
         if (v.getId() == R.id.b1) {
@@ -243,7 +318,7 @@ public class MainActivity2 extends Activity {
         }
     }
 
-        public void getPageFaultTime(View v) throws IOException {
+    public void getPageFaultTime(View v) throws IOException {
         if (v.getId() == R.id.b2) {
             TextView label1 = (TextView) findViewById(R.id.textView4);//write
 
@@ -257,7 +332,7 @@ public class MainActivity2 extends Activity {
 
             for (int i = 0; i < count; i += (1024*4)) {
                 out.put(i, (byte) 'A');
-           }
+            }
             stopTime = System.nanoTime();
             diffTime = stopTime - startTime;//for 2^11 accesses.
             diffTime = diffTime/(512);
